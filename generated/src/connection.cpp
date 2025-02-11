@@ -4,31 +4,45 @@
 #include <stdexcept>
 using ::std::cin;
 using ::std::cout;
+using ::std::string;
+Connection::Connection(){
+    conn = mysql_init(nullptr);
+    if(!conn){
+        throw std::runtime_error("Mysql Initialization Failed!");
+    }
+}
 
-Connection::Connection(std::string ip, std::string username, std::string password, std::string databaseName, int port, std::string unixSocket, unsigned long clientFlag){
-    this->ip = ip;
-    this->username = username;
-    this->password = password;
-    this->databaseName = databaseName;
-    this->port = port;
-    this->unixSocket = unixSocket;
-    this->clientFlag = clientFlag;
-}
-Connection::~Connection() {
-    close();
-}
-void Connection::connect(){
-    MYSQL *conn;
-    conn = mysql_init(NULL);
-    if (conn == NULL){
-        throw std::runtime_error("MySQL initialization failed: " + std::string(mysql_error(NULL)));
+bool Connection::connect(const string &host, const string &user, const string &passwd, const string &database, const int port){
+    conn = mysql_real_connect(conn, host.c_str(), user.c_str(), passwd.c_str(), database.c_str(), port, NULL, 0);
+    if(!conn){
+        throw std::runtime_error(std::string("Connection Faild: ") + mysql_error(conn));
     }
-    if (mysql_real_connect(conn, ip.c_str(), username.c_str(), password.c_str(), databaseName.c_str(), port, unixSocket.empty() ? NULL : unixSocket.c_str(), clientFlag) == NULL){
-        throw std::runtime_error("MySQL connection failed: " + std::string(mysql_error(conn)));
-    }
-    cout << "Connected to MySQL server successfully\n";
-    mysql_close(conn);
+    cout << "Connected to MySQL successfuly!" << std::endl;
+    return true;
 }
+void Connection::executeQuery(const string &query){
+    if(mysql_query(conn, query.c_str())){
+        throw std::runtime_error(string("Querry failed: ") + mysql_error(conn));
+    }
+    res = mysql_store_result(conn);
+    if(res){
+        int num_filds = mysql_num_fields(res);
+        while((row = mysql_fetch_field(res))){
+            for(int i = 0; i < num_filds; i++){
+                cout << (row[i]? row[i] : "NULL") << " ";
+            }
+            cout << std::endl;
+        }
+    }else{
+            cout << "Querry excuted successfully"<<std::endl;
+    }
+    mysql_free_result(res);
+}
+
 void Connection::close(){
-    mysql_close(conn);
+    if(conn){
+        mysql_close(conn);
+        conn = nullptr;
+        cout << "MySQL connection closed!" << std::endl;
+    }
 }
