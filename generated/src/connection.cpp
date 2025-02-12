@@ -20,24 +20,29 @@ bool Connection::connect(const string &host, const string &user, const string &p
     cout << "Connected to MySQL successfuly!" << std::endl;
     return true;
 }
-void Connection::executeQuery(const string &query){
-    if(mysql_query(conn, query.c_str())){
-        throw std::runtime_error(string("Querry failed: ") + mysql_error(conn));
+MYSQL_RES* Connection::getResult(){
+    if(!res){
+        throw std::runtime_error("No result available. Did you execute the querry?");
     }
-    res = mysql_store_result(conn);
-    if(res){
-        int num_filds = mysql_num_fields(res);
-        while((row = mysql_fetch_field(res))){
-            for(int i = 0; i < num_filds; i++){
-                cout << (row[i]? row[i] : "NULL") << " ";
-            }
-            cout << std::endl;
-        }
-    }else{
-            cout << "Querry excuted successfully"<<std::endl;
-    }
-    mysql_free_result(res);
+    return res;
 }
+void Connection::executeQuery(const std::string &query) {
+    if (!conn) {
+        throw std::runtime_error("executeQuery() failed: MySQL connection is not initialized.");
+    }
+
+    std::cout << "Executing query: " << query << std::endl;
+
+    if (mysql_query(conn, query.c_str())) {
+        throw std::runtime_error(std::string("Query execution failed: ") + mysql_error(conn));
+    }
+
+    res = mysql_store_result(conn);
+    if (!res && mysql_errno(conn)) {
+        throw std::runtime_error(std::string("mysql_store_result() failed: ") + mysql_error(conn));
+    }
+}
+
 
 void Connection::close(){
     if(conn){

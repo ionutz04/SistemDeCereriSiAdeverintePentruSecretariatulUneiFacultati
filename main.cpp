@@ -3,16 +3,35 @@
 
 // #include <Helper.h>
 #include "generated/include/connection.h"
+#include "generated/include/User.h"
 using ::std::string;
+void printUserInfo(const User& user) {
+    std::cout << "User Found!" << std::endl;
+    std::cout << "ID: " << user.getId() << std::endl;
+    std::cout << "Name: " << user.getName() << std::endl;
+    std::cout << "Surname: " << user.getSurname() << std::endl;
+    std::cout << "Username: " << user.getUsername() << std::endl;
+    std::cout << "Created On: " << user.getDateCreate() << std::endl;
+
+    // Display user type
+    switch (user.getUserType()) {
+        case UT::Decan: std::cout << "Role: Decan" << std::endl; break;
+        case UT::Prodecan: std::cout << "Role: Prodecan" << std::endl; break;
+        case UT::Secretar_sef: std::cout << "Role: Secretar Sef" << std::endl; break;
+        case UT::Sef_Departament: std::cout << "Role: Sef Departament" << std::endl; break;
+        case UT::Secretar: std::cout << "Role: Secretar" << std::endl; break;
+        case UT::Student: std::cout << "Role: Student" << std::endl; break;
+        case UT::Profesor: std::cout << "Role: Profesor" << std::endl; break;
+        default: std::cout << "Role: Unknown" << std::endl; break;
+    }
+}
 int main() {
-    try {
-        Connection conn;
-        if(conn.connect("192.168.0.116", "root", "proiectqwerty", "proiectdb", 3399)){
-            conn.executeQuery("select * from utilizator;");
-        }
-    } catch (const std::runtime_error &e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        return 1;
+    User user;
+    int userId=1;
+    if(user.loadUserFromDB(userId)){
+        printUserInfo(user);
+    }else{
+        std::cerr<<"User not found." << std::endl;
     }
     return 0;
     // std::cout << "Hello, world!\n";

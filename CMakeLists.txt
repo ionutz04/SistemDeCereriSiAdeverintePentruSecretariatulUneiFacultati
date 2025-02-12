@@ -19,6 +19,7 @@ set(MySQL_LIBRARY "/usr/lib/x86_64-linux-gnu/libmysqlclient.so")
 add_executable(${PROJECT_NAME}
     main.cpp
     generated/src/connection.cpp
+    generated/src/User.cpp
 )
 
 include(cmake/CompilerFlags.cmake)

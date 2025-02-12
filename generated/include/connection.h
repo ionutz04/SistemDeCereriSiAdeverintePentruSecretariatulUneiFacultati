@@ -18,6 +18,7 @@ public:
     bool connect(const string &host, const string &user, const string &passwd, const string &database, const int port);
     void close();
     void executeQuery(const std::string &query);
+    MYSQL_RES* getResult();
     ~Connection(){
         close();
     };
