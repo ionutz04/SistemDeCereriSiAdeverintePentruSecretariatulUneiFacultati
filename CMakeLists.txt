@@ -20,6 +20,15 @@ add_executable(${PROJECT_NAME}
     main.cpp
     generated/src/connection.cpp
     generated/src/User.cpp
+    generated/src/Decan.cpp
+    generated/src/Prodecan.cpp
+    generated/src/SecretarSef.cpp
+    generated/src/SefDepartament.cpp
+    generated/src/Student.cpp
+    generated/src/Profesor.cpp
+    generated/src/Secretar.cpp
+    generated/src/Document.cpp
+    
 )
 
 include(cmake/CompilerFlags.cmake)
