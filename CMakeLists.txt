@@ -28,7 +28,8 @@ add_executable(${PROJECT_NAME}
     generated/src/Profesor.cpp
     generated/src/Secretar.cpp
     generated/src/Document.cpp
-    
+    generated/src/docType.cpp
+    generated/src/PDFWriter.cpp
 )
 
 include(cmake/CompilerFlags.cmake)

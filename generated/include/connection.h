@@ -24,4 +24,5 @@ public:
     };
 };
 
+
 #endif //OOP_CONNECTION_H
