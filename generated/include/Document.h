@@ -3,21 +3,25 @@
 
 #include <iostream>
 #include <string>
-
+#include "User.h"
+#include "docType.h"
 class Document {
 private:
-    std::string title;
-    std::string content;
-
+    User* user;
+    docType docT;
+    std::string status;
 public:
-    Document(std::string title, std::string content) : title(title), content(content) {}
-
-    std::string getTitle() const { return title; }
-    std::string getContent() const { return content; }
-
-    void printDocument() const {
-        std::cout << "Document Title: " << title << "\nContent: " << content << "\n";
+    Document(User* user, docType docT): user(user), docT(docT){
+        user->loadUserFromDB(user->getId());
     }
+    map<string, string> fillDataForDocType() const;
+    std::string insertValues(const std::string& text, const std::map<std::string, std::string>& valuesMap);
+    std::string getName()const{
+        return docT.getName();
+    }
+    std::string getStatus() const { return status; }
+    void setStatus(const std::string& newStatus) { status = newStatus; }
+    
 };
 
 #endif // DOCUMENT_H

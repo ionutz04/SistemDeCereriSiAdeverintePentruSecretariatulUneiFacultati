@@ -3,27 +3,63 @@
 
 #include "User.h"
 #include "Document.h"
-class Student : public User {
+#include "docType.h"
+#include <thread>
+#include <mutex>
+#include <queue>
+#include <condition_variable>
+#include <memory>
+#include "PipelineNode.h"
+class Student : public User, public PipelineNode{
 public:
-    Student() {
-        userType = UT::Student;
-    }
+Student(int userId) : User(userId) {
+    userType = UT::Student;
+}
 
-    bool loadUserFromDB(int userId) override {
-        if (!User::loadUserFromDB(userId)) return false;
-        if (userType != UT::Student) {
-            std::cerr << "Error: User is not a Student!" << std::endl;
-            return false;
+bool loadUserFromDB(int userId) override {
+    if (!User::loadUserFromDB(userId)) return false;
+    if (userType != UT::Student) {
+        std::cerr << "Error: User is not a Student!" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+void produce(Document& doc) override {
+    std::unique_lock<std::mutex> lock(mtx);
+    doc.setStatus("Created by Student");
+    buffer.push(doc);
+    cv.notify_one();
+}
+
+void consume() override {
+    std::unique_lock<std::mutex> lock(mtx);
+    cv.wait(lock, [this] { return !buffer.empty(); });
+    Document doc = buffer.front();
+    buffer.pop();
+    std::cout << "Student processed document: " << doc.getName() << " with status: " << doc.getStatus() << std::endl;
+    if (nextNode) {
+        nextNode->produce(doc);
+    }
+}
+
+void run() override {
+    std::thread([this] {
+        while (true) {
+            consume();
         }
-        return true;
-    }
-    void intocmire(Document& doc) {
-        std::cout << "Student " << name << " is drafting document: " << doc.getTitle() << std::endl;
-    }
+    }).detach();
+}
 
-    void vizare(Document& doc) {
-        std::cout << "Student " << name << " is verifying document: " << doc.getTitle() << std::endl;
-    }
+void setNext(std::shared_ptr<PipelineNode> next) override {
+    nextNode = next;
+}
+
+private:
+std::queue<Document> buffer;
+std::mutex mtx;
+std::condition_variable cv;
+std::shared_ptr<PipelineNode> nextNode;
 };
 
-#endif // STUDENT_H//TODO remake the atributions for the student;
+#endif // STUDENT_H

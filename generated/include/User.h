@@ -30,10 +30,10 @@ protected:
     UT userType;
 
 public:
-    User() : id(0), userType(UT::UNKNOWN) {}
+    User(int userId) : id(userId), userType(UT::UNKNOWN){}
     virtual ~User() = default;
 
-    virtual bool loadUserFromDB(int id);
+    virtual bool loadUserFromDB(int id) = 0;
 
     // Getters
     int getId() const { return id; }
