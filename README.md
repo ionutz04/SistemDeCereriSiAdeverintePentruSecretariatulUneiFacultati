@@ -929,3 +929,6 @@ CppReference. *\"Condition Variable in C++.\"* Accesat la
 
 CppReference. *\"Multithreading in C++.\"* Accesat la
 [URL](https://en.cppreference.com/w/cpp/language/multithread).
+
+Pentru o intelegere mai ampla am realizat si un scurt video cu un demo al apicatiei:
+Demo[URL](https://youtu.be/pDKtc7kXbRY)
