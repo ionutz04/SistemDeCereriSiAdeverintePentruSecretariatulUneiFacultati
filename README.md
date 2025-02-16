@@ -273,9 +273,62 @@ Pentru implementare, am ales o abordare structurată, pentru a evita
 deschiderea multiplă a conexiunilor.
 
 Definiție :
+```
+#include "../include/connection.h"
+#include <iostream>
+#include <string>
+#include <stdexcept>
+using ::std::cin;
+using ::std::cout;
+using ::std::string;
+Connection::Connection(){
+    conn = mysql_init(nullptr);
+    if(!conn){
+        throw std::runtime_error("Mysql Initialization Failed!");
+    }
+}
 
-![](media/image1.png){width="6.692899168853893in"
-height="3.5971992563429573in"}  
+bool Connection::connect(const string &host, const string &user, const string &passwd, const string &database, const int port){
+    conn = mysql_real_connect(conn, host.c_str(), user.c_str(), passwd.c_str(), database.c_str(), port, NULL, 0);
+    if(!conn){
+        throw std::runtime_error(std::string("Connection Faild: ") + mysql_error(conn));
+    }
+    cout << "Connected to MySQL successfuly!" << std::endl;
+    return true;
+}
+MYSQL_RES* Connection::getResult(){
+    if(!res){
+        throw std::runtime_error("No result available. Did you execute the querry?");
+    }
+    return res;
+}
+void Connection::executeQuery(const std::string &query) {
+    if (!conn) {
+        throw std::runtime_error("executeQuery() failed: MySQL connection is not initialized.");
+    }
+
+    std::cout << "Executing query: " << query << std::endl;
+
+    if (mysql_query(conn, query.c_str())) {
+        throw std::runtime_error(std::string("Query execution failed: ") + mysql_error(conn));
+    }
+
+    res = mysql_store_result(conn);
+    if (!res && mysql_errno(conn)) {
+        throw std::runtime_error(std::string("mysql_store_result() failed: ") + mysql_error(conn));
+    }
+}
+
+
+void Connection::close(){
+    if(conn){
+        mysql_close(conn);
+        conn = nullptr;
+        cout << "MySQL connection closed!" << std::endl;
+    }
+}
+
+```
 Pentru conectare, am avut nevoie de 3 variabile de tip MYSQL: **conn**
 în care se afla adresa de memorie la care a fost salvata conexiunea**,
 res**, ce retine rezultatul dat de un anumit interogare(query), și row,
@@ -291,8 +344,56 @@ documentelor.
 
 Definiții:  
 1. User:
+```
+#ifndef OOP_USER_H
+#define OOP_USER_H
 
-![](media/image2.png){width="5.927199256342957in"
+#include <iostream>
+#include <string>
+#include <ctime>
+#include <chrono>
+#include <sstream>
+#include <iomanip>
+
+using ::std::string;
+
+// Enum for user roles
+enum class UT {
+    Decan,
+    Prodecan,
+    Secretar_sef,
+    Sef_Departament,
+    Secretar,
+    Student,
+    Profesor,
+    UNKNOWN
+};
+
+class User {
+protected:
+    int id;
+    string name, surname, username, passwd;
+    std::chrono::system_clock::time_point date_create;  //  Store DATETIME as `time_point`
+    UT userType;
+
+public:
+    User(int userId) : id(userId), userType(UT::UNKNOWN){}
+    virtual ~User() = default;
+
+    virtual bool loadUserFromDB(int id) = 0;
+
+    // Getters
+    int getId() const { return id; }
+    string getName() const { return name; }
+    string getSurname() const { return surname; }
+    string getUsername() const { return username; }
+    string getDateCreate() const;
+    UT getUserType() const { return userType; }
+};
+
+#endif // OOP_USER_H
+
+```
 height="6.562599518810149in"}- este o clasa abstracta ce obtine toate
 atributele folosindu-se de o baza de date normalizata.
 
@@ -363,6 +464,7 @@ producer sau doar consumer.
 Studentul, prin natura sa din modelul informatic propus mai sus, accepta
 doar producerea de documente, consumarea ei fiind doar o chestiune de
 afisare status:  
+```
 \#ifndef STUDENT_H
 
 \#define STUDENT_H
@@ -477,10 +579,11 @@ std::shared_ptr\<PipelineNode\> nextNode;
 };
 
 \#endif // STUDENT_H
-
+```
 2\. Secretarul: secretarul, tot prin natura sa specificata in modelul
 anterior, permite si producerea de actiuni asupra unui document, dar si
 citirea/vizarea/semnarea unui document:  
+```
 \#ifndef STUDENT_H
 
 \#define STUDENT_H
@@ -595,12 +698,12 @@ std::shared_ptr\<PipelineNode\> nextNode;
 };
 
 \#endif // STUDENT_H  
-  
+```
 3. Decanul- decanul este entitatea ce suporta, la nivel teoretic, doar
 consumarea informațiilor date de către șeful de departament, însă, dar
 si produce răspuns, care in cazul unei cereri de echivalare, este accept
 sau deny:
-
+```
 \#ifndef DECAN_H
 
 \#define DECAN_H
@@ -760,7 +863,7 @@ std::cout \<\< \"Notification: Document \'\" \<\< doc.getName()
 };
 
 \#endif // DECAN_H
-
+```
 ## Rularea și folosirea acestei aplicații
 
 Aceasta aplicație necesita o atenție sporta din punct de vedere de
