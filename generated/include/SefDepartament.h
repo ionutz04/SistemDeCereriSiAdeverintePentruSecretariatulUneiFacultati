@@ -31,8 +31,8 @@ public:
     bool makeDecision() {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dist(0, 1);
-        return dist(gen) == 1;
+        std::bernoulli_distribution dist(0.60);
+        return dist(gen);
     }
 
     // Notify the user of the document's status

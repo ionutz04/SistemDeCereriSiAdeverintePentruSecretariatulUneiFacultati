@@ -65,6 +65,8 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "fstream": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "bitset": "cpp",
+        "regex": "cpp"
     },
 }

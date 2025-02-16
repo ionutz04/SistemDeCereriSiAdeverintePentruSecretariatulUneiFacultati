@@ -5,6 +5,7 @@
 #include <string>
 #include "User.h"
 #include "docType.h"
+#include <vector>
 class Document {
 private:
     User* user;
@@ -14,8 +15,8 @@ public:
     Document(User* user, docType docT): user(user), docT(docT){
         user->loadUserFromDB(user->getId());
     }
-    map<string, string> fillDataForDocType() const;
-    std::string insertValues(const std::string& text, const std::map<std::string, std::string>& valuesMap);
+    std::vector<std::pair<std::string, std::string>> fillDataForDocType() const;
+    std::string insertValues(const std::string& text, const std::vector<std::pair<std::string, std::string>>& valuesMap);
     std::string getName()const{
         return docT.getName();
     }

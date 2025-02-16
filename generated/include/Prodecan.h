@@ -39,7 +39,7 @@ public:
         cv.wait(lock, [this] { return !buffer.empty(); });
         Document doc = buffer.front();
         buffer.pop();
-        std::cout << "Secretar processed document: " << doc.getName() << " with status: " << doc.getStatus() << std::endl;
+        std::cout << "Prodecan processed document: " << doc.getName() << " with status: " << doc.getStatus() << std::endl;
         if (nextNode) {
             nextNode->produce(doc);
         }
